@@ -3,6 +3,11 @@
 
 **AIORI Hackathon 3 | Challenge PS-019: Personal-Data Discovery and Privacy Evidence Inventory**
 
+## Demo Videos
+
+- **Proposal Demo:** [Watch on YouTube](https://youtu.be/IiwEpL9KMNg?si=vdpn1_wBz1bcf5YR)
+- **Team Introduction:** [Watch on YouTube](https://youtu.be/Iuuf_SyJ7O8?si=FQjnphDJrUIOfK8L)
+
 ## 1. Overview
 
 PrivacyTwin is a proposed platform that helps identify potential personal data in CSV files and SQLite databases. Instead of simply classifying a field, it provides supporting evidence, highlights conflicting signals, and helps reviewers understand why a field may contain personal information.
