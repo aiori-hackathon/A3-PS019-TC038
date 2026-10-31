@@ -1,248 +1,161 @@
-# PrivacyTwin 🔐
-### Evidence-Based Personal Data Discovery and Privacy Review
+# PrivacyTwin
 
-**AIORI Hackathon 3 | Challenge PS-019: Personal-Data Discovery and Privacy Evidence Inventory**
+**Find personal data. Keep its evidence current.**
 
-## Demo Videos
+PrivacyTwin scans CSV files and SQLite databases, explains candidate personal-data fields, and connects them to owner-declared purpose and retention. **ReviewGuard** keeps classification and metadata reviews separate: when evidence changes, the affected review reopens with a reason.
 
-- **Proposal Demo:** [Watch on YouTube](https://youtu.be/IiwEpL9KMNg?si=vdpn1_wBz1bcf5YR)
-- **Team Introduction:** [Watch on YouTube](https://youtu.be/Iuuf_SyJ7O8?si=FQjnphDJrUIOfK8L)
+For example, an `employee_id` column changes from internal IDs to phone-shaped values. Its classification review reopens; its unchanged metadata review and the other fields' reviews stay current.
 
-## 1. Overview
+![Actual inventory after a replacement scan: employee_id classification reopened, metadata and other reviews current](docs/walkthrough/screenshots/17-scoped-reopening.png)
 
-PrivacyTwin is a proposed platform that helps identify potential personal data in CSV files and SQLite databases. Instead of simply classifying a field, it provides supporting evidence, highlights conflicting signals, and helps reviewers understand why a field may contain personal information.
+_Actual application screenshot using synthetic data. Candidate labels, review states and counts come from committed scans._
 
-The platform combines deterministic detection rules, data validation, evidence analysis, and AI-assisted explanations using Google Gemini. It also includes **ReviewGuard**, which tracks human review decisions and identifies when a previous decision may need to be revisited after relevant changes.
+**Start here:** [Install and build](docs/BUILD.md) · [User guide](docs/USER_MANUAL.md) · [42-screenshot walkthrough](docs/walkthrough/WALKTHROUGH.md) · [Judge guide](docs/JUDGES_GUIDE.md) · [Reports](#reports-and-demonstration)
 
-The goal is to make personal-data discovery more transparent, traceable, and efficient while keeping humans involved in important decisions.
+## Start the app
 
-## 2. Problem Statement
+You need **Python 3.11+**, **Node.js 20.9+**, and npm. Microsoft Edge is needed only for the documented browser tests and screenshot capture. Gemini is optional; scanning, manual review and the demonstration work without an API key.
 
-Identifying personal information in real-world datasets can be challenging for several reasons:
+From PowerShell:
 
-- Column names may be unclear, misleading, or specific to a business domain.
-- Pattern-based rules may incorrectly identify business identifiers as personal identifiers.
-- A single classification or confidence score may hide conflicting evidence.
-- Previously approved classifications may become outdated when data, rules, or metadata change.
-- Repeating the entire review process after every change consumes time and effort.
-- Missing information about data purpose, retention, or ownership can make privacy reviews incomplete.
-
-PrivacyTwin addresses these challenges by connecting detection results with evidence, review history, and change tracking.
-
-## 3. Objectives
-
-- Discover potential personal-data fields in structured datasets.
-- Combine multiple detection signals instead of relying on a single rule.
-- Preserve supporting and contradicting evidence.
-- Use AI to explain ambiguous fields and provide contextual suggestions.
-- Maintain versioned human review decisions.
-- Identify decisions affected by relevant changes.
-- Highlight missing metadata, including purpose, retention, and ownership.
-- Generate reviewable reports and field-level evidence summaries.
-- Minimise the exposure of sensitive data during AI-assisted analysis.
-
-## 4. Key Features
-
-### 4.1 Personal Data Discovery
-
-Analyse CSV files and SQLite data sources to identify fields that may contain personal information.
-
-The proposed classification categories are:
-
-- Identity
-- Contact
-- Location
-- Government or Official ID
-- Demographic Information
-
-### 4.2 Evidence Collection and Fusion
-
-Collect evidence from column names, data characteristics, configured rules, validators, and metadata.
-
-Combine the collected signals to produce candidate classifications while preserving conflicting evidence and ambiguity.
-
-### 4.3 AI-Assisted Explanation
-
-Use Google Gemini to help interpret ambiguous fields and explain possible classifications.
-
-AI-generated suggestions are validated before being used. The system does not treat an LLM response as unquestionable evidence or as a final legal decision.
-
-### 4.4 ReviewGuard
-
-ReviewGuard tracks human review decisions and their dependencies.
-
-When relevant data, rules, or metadata change, the system checks whether an earlier decision may have become outdated. It marks affected reviews for reconsideration rather than requiring every field to be reviewed again.
-
-### 4.5 Metadata Checklist and Fix Preview
-
-Identify missing metadata such as:
-
-- Data purpose
-- Retention information
-- Data owner
-
-The Fix Preview feature displays proposed metadata updates before they are saved. Changes require explicit user confirmation.
-
-### 4.6 Reports and Exports
-
-The proposed outputs include:
-
-- Field-level Evidence Passport
-- Personal-data inventory
-- Human review history
-- Metadata gap checklist
-- `gap_report.csv`
-
-## 5. System Architecture
-
-The proposed architecture uses a modular Python application with a Streamlit interface, SQLite persistence, and an optional Gemini API integration.
-
-```text
-                  CSV / SQLite Sources
-                           |
-                           v
-                  Data Profiler
-                           |
-                           v
-              Deterministic Detectors
-                           |
-                           v
-               Evidence Fusion Layer
-                           |
-                 +---------+---------+
-                 |                   |
-                 v                   v
-          Gemini Assistance    Conflict Analysis
-                 |                   |
-                 +---------+---------+
-                           |
-                           v
-                Field Evidence Case
-                           |
-              +------------+------------+
-              |                         |
-              v                         v
-         ReviewGuard             Metadata Checklist
-              |                         |
-              v                         v
-       Review State Tracking       Fix Preview
-              |                         |
-              +------------+------------+
-                           |
-                           v
-                    Streamlit UI
-                           |
-                           v
-            Evidence Passport / Inventory /
-               Review History / Gap Report
+```powershell
+git clone https://github.com/niveditapalanisamy/Privacy_Twin.git
+cd Privacy_Twin
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-lock.txt
+cd web
+npm ci
+cd ..
+powershell -ExecutionPolicy Bypass -File .\Start-PrivacyTwin.ps1 -Build
 ```
 
-## 6. Technology Stack
+Open **http://127.0.0.1:3000**. The launcher starts the frontend and local backend in the background. Logs are in `data/runtime/`.
 
-| Component | Technology |
-|---|---|
-| Programming language | Python |
-| User interface | Streamlit |
-| Local persistence | SQLite |
-| Input sources | CSV and SQLite |
-| AI-assisted explanation | Google Gemini API |
-| Detection | Deterministic rules and validators |
-| Review tracking | ReviewGuard |
-| Output formats | CSV and reviewable application reports |
+```powershell
+# Start an already-built app
+.\Start-PrivacyTwin.ps1
 
-*This table describes the proposed implementation stack; individual components may depend on the final implementation.*
+# Stop the app
+.\Stop-PrivacyTwin.ps1
+```
 
-## 7. Data Flow
+After changing application code, stop the app, then run `Start-PrivacyTwin.ps1 -Build`. See [build instructions](docs/BUILD.md) for development, other operating systems, tests and troubleshooting.
 
-1. **Select source:** The user selects a CSV file or SQLite source.
-2. **Profile data:** The system examines field names, schema, and data characteristics.
-3. **Collect signals:** Detection rules and validators analyse candidate fields.
-4. **Combine evidence:** The system combines supporting and contradicting signals.
-5. **Explain ambiguity:** Gemini may provide contextual interpretations for unclear cases.
-6. **Create evidence cases:** Candidate classifications, evidence references, scores, and ambiguity are recorded.
-7. **Check review freshness:** ReviewGuard checks whether relevant dependencies have changed.
-8. **Review metadata:** The system identifies missing metadata and presents proposed changes.
-9. **Generate outputs:** Reviewers inspect the results and generate inventory and gap reports.
+## Use it in seven steps
 
-## 8. Privacy and Security Considerations
+| Screen        | What to do                                                          | What you get                                                     |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Sources**   | Upload a CSV or SQLite file → **Register & scan**                   | Actual source, table and field profiles                          |
+| **Rules**     | Inspect or edit detectors and required metadata                     | Versioned rules and checklist                                    |
+| **Inventory** | Open a field and inspect evidence                                   | Candidate classes, detector counts and competing interpretations |
+| **Reviews**   | Save classification and metadata decisions separately               | Reviewer, rationale and original evidence dependencies           |
+| **Metadata**  | Enter purpose/retention → **Preview effect** → **Save declaration** | Declared context, provenance and visible gaps                    |
+| **Changes**   | Select the same registered source and upload a replacement          | Precise review reopening with before/after reasons               |
+| **Results**   | Inspect findings, evaluate and export                               | Inventory, gaps, history, reports and portable evidence          |
 
-PrivacyTwin is designed to minimise unnecessary exposure of sensitive information.
+Try [walkthrough_v1.csv](docs/examples/walkthrough_v1.csv), then replace it with [walkthrough_v2.csv](docs/examples/walkthrough_v2.csv). They contain 20 synthetic records and four fields; V2 changes only `employee_id`. Follow the [user guide](docs/USER_MANUAL.md) for exact clicks and expected results.
 
-- Prefer synthetic data for development and testing.
-- Mask sensitive examples where possible.
-- Send only the minimum necessary context to Gemini.
-- Do not send complete datasets to the external model by default.
-- Store API credentials in environment variables.
-- Require explicit user confirmation before saving proposed metadata changes.
-- Keep AI-generated suggestions separate from deterministic review-state decisions.
+**Learn the states:** a _candidate_ is a scanner suggestion; _current_ means review dependencies are fresh; _clear/unresolved_ is the review outcome; _reopened_ means another review is needed. Complete metadata and a ready field describe technical workflow conditions, not legal compliance.
 
-PrivacyTwin provides technical evidence to support human review. It does not independently determine legal compliance or establish a lawful basis for processing personal data.
+## What makes PrivacyTwin useful
 
-## 9. Implementation Timeline
+| Feature                      | Why it matters                                                                                                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ReviewGuard**              | Reopens decisions whose dependencies changed and preserves unrelated reviews. Renames create new identities; restoring old values does not silently reapprove a review. |
+| **Evidence experiments**     | Remove header hints, value patterns, declared meaning or checksum validation and compare the finding without changing saved decisions.                                  |
+| **India-focused validation** | Includes Indian mobile patterns, PAN format, Aadhaar-shaped values with Verhoeff checks, and GSTIN checksum evidence. Matches remain candidates requiring context.      |
+| **Metadata preview**         | Shows missing purpose, retention duration/start trigger, owner and provenance before saving. Field declarations explicitly override table defaults.                     |
+| **Portable verification**    | Export a package with aggregate snapshots, original review dependencies, policies and a standalone score verifier.                                                      |
+| **Optional AI assistance**   | Generate attributed proposals with evidence/revision checks, selectable confidence thresholds and accept/reject/revoke controls.                                        |
 
-**Planned development period: 16 October – 31 October 2026**
+### Inspect the evidence
 
-| Phase | Focus Area | Planned Activities |
-|---|---|---|
-| Phase 1 | Foundation | Repository setup, CSV/SQLite processing, profiling, synthetic test data |
-| Phase 2 | Detection | Rules, validators, grouped evidence, contradiction handling |
-| Phase 3 | ReviewGuard | Review contracts, fingerprints, dependency comparison, stale-review reasons |
-| Phase 4 | Metadata and UI | Checklist, Fix Preview, Evidence Passport, review history, exports |
-| Phase 5 | Evaluation and Demo | Testing, change scenarios, evaluation, final demonstration |
+![Actual evidence panel showing identifier match counts and candidate score contributions](docs/walkthrough/screenshots/07-evidence.png)
 
-The timeline is a plan for the implementation, not a claim that all features have already been completed.
+The interface shows numerators, denominators and score contributions. Scores are weighted evidence, not probabilities. Correlated signals are capped within each group.
 
-## 10. Evaluation Plan
+<details>
+<summary><strong>Screenshot: metadata preview and review impact</strong></summary>
 
-The system should be evaluated using representative test datasets and scenarios, including:
+![Actual metadata preview: complete draft checklist and affected metadata review](docs/walkthrough/screenshots/13-complete-preview.png)
 
-- Correct identification of personal-data fields.
-- False positives involving business identifiers.
-- Fields with mixed or ambiguous values.
-- Cases with supporting and contradicting evidence.
-- Changes to data, detection rules, and metadata.
-- Correct identification of reviews that have become stale.
-- Preservation of unaffected review decisions.
-- Validation of AI-generated evidence references.
-- Correct generation of inventory and metadata gap reports.
+Preview is read-only. Saving checks the draft and current revisions before committing the declaration.
 
-Evaluation should measure detection quality, false-positive behaviour, review-state correctness, and the reliability of exported results.
+</details>
 
-## 11. Expected Outcomes
+<details>
+<summary><strong>Screenshot: executable ReviewGuard challenge</strong></summary>
 
-PrivacyTwin aims to provide:
+![Actual challenge: one classification review reopens while metadata and unrelated email reviews remain current](docs/walkthrough/screenshots/21-challenge-values.png)
 
-- A more explainable personal-data discovery process.
-- Better visibility into uncertain or conflicting classifications.
-- Traceable human review decisions.
-- Selective reopening of reviews when relevant dependencies change.
-- Faster identification of missing metadata.
-- More structured evidence for privacy assessments.
+**Changes → Challenge ReviewGuard** runs eight scenarios using real scans and scripted reviews in separate disposable workspaces. The measured reference run matched **33/33 expected review states**, with **0 false and 0 missed reopenings**. These are scripted regression results.
 
-The expected benefit is reduced unnecessary review effort without losing transparency or review integrity.
+</details>
 
-## 12. Future Enhancements
+## Optional real AI review
 
-Potential future improvements include:
+Set `GEMINI_API_KEY` on the backend, or put the key in the ignored local file `data/gemini-key.txt`. Keep credentials out of browser variables and Git. Restart the backend after changing its environment.
 
-- Support for additional structured data sources.
-- Configurable detection policies and validation rules.
-- Expanded evaluation datasets and benchmark comparisons.
-- More detailed dependency tracking.
-- Improved evidence visualisation and reporting.
-- Integration with enterprise metadata catalogues and data governance workflows.
+Open **Results / Scan report → Review automation**. Select a source, draft or automatic mode, scopes, maximum fields and minimum model confidence. The app offers **70%, 80%, 90%, 95% and 100%**; its general default is 95%. Each run saves the selected threshold. A clear proposal at exactly the threshold qualifies only if the other local checks pass.
 
-## 13. Team
+![Actual Gemini proposal automatically applied at exactly 70% model confidence](docs/ai-live/screenshots/06-classification.png)
 
-**Team Members:** 2
+In the documented **real Gemini run at 70%**, three synthetic fields produced **6 proposals: 2 automatically applied and 4 unresolved/pending**. All 15 missing metadata items remained flagged. The guide also verifies acceptance, rejection, revocation and reopening after a value change. The first connection failure and original 95% run are preserved as reference evidence.
 
-**Mentor:** 1
+- [Read the live-review record and screenshots](docs/ai-live/REVIEW.md)
+- [Open the live-review PDF](docs/ai-live/Actual-AI-Review-70-Percent.pdf)
+- [Inspect the actual provider result](docs/ai-live/downloads/provider-run-result.json)
 
-The team will collaborate on solution design, implementation, testing, and evaluation, with mentor guidance on technical decisions and overall solution quality.
+The configured integration uses `gemini-3.1-flash-lite`. Real runs contact Google and consume provider quota. They send aggregate evidence and metadata completeness; field names are opt-in. Raw source rows and declaration text stay local. Model confidence is not measured accuracy. Mixed evidence and missing business declarations remain unresolved.
 
-## 14. Acknowledgement
+## Reports and demonstration
 
-Developed as a proposed solution for **AIORI Hackathon 3 – PS-019: Personal-Data Discovery and Privacy Evidence Inventory**.
+| Audience                 | Start with                                                                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Judges**               | [Judge guide](docs/JUDGES_GUIDE.md), [seven-slide pitch PDF](docs/submission/PrivacyTwin-Pitch.pdf), [five-minute script](docs/PITCH.md)                                                                                                          |
+| **New users**            | [User guide](docs/USER_MANUAL.md), [42-screenshot tour](docs/walkthrough/WALKTHROUGH.md), [printable walkthrough PDF](docs/walkthrough/PrivacyTwin-Full-Walkthrough.pdf)                                                                          |
+| **Technical reviewers**  | [Architecture](docs/ARCHITECTURE.md), [technical report draft PDF](docs/submission/PrivacyTwin-Technical-Report-Draft.pdf), [implementation audit](docs/IMPLEMENTATION_AUDIT.md)                                                                  |
+| **Results and evidence** | [Verification record](docs/submission/VERIFICATION.md), [class metrics](docs/submission/evaluation-results.json), [ReviewGuard results](docs/submission/challenge-results.json), [synthetic evidence ZIP](docs/submission/synthetic-evidence.zip) |
+| **Submission team**      | [Annotation and organizer checklist](docs/EVALUATION_PROTOCOL.md)                                                                                                                                                                                 |
 
-**Project:** PrivacyTwin  
-**Core idea:** Discover potential personal data, explain the evidence, preserve human decisions, and revisit only the decisions affected by relevant changes.
+The standalone HTML guides are also committed under `docs/walkthrough/` and `docs/ai-live/`. GitHub displays HTML as source; download those files and open them locally for clickable, enlarged screenshots. Combined download archives can be regenerated with the documented packaging tools.
+
+From **Results**, download the final review report as HTML and use **Print / Save as PDF**. Inventory and gap reports are CSV; the passport and history are JSON. The evidence ZIP includes a standard-library verifier:
+
+```powershell
+python tools/verify_evidence.py docs/submission/synthetic-evidence.zip
+```
+
+This checks file consistency, references and aggregate score replay. Hashes do not establish authenticity or legal validity.
+
+## Validation
+
+| Check                              | Verified result                                             |
+| ---------------------------------- | ----------------------------------------------------------- |
+| Backend tests                      | **42 passed**                                               |
+| Browser workflows                  | **9 passed**; the standard suite skips the opt-in live test |
+| Production build                   | **Passed**, including TypeScript                            |
+| Separate real Gemini review at 70% | **Passed**, with 14 actual screenshots                      |
+| ReviewGuard challenge              | **33/33** expected states matched across 8 scenarios        |
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+cd web
+npm run build
+npm run test:e2e
+```
+
+Browser tests use Microsoft Edge, isolated ports and separate databases. See [BUILD.md](docs/BUILD.md#tests-and-verification) for details and the explicit opt-in command for real-provider testing.
+
+The bundled detection evaluation contains **12 benchmark fields and 7 separate stress fields**, authored as synthetic regression data. It reports per-class precision, recall and support, plus three baseline variants. **Independent human-labelled held-out validation remains required** before claiming general detection accuracy.
+
+## Scope and storage
+
+- Five configured classes: **Identity, Contact, Location, Official ID and Demographic**.
+- Local, single-user prototype. Workspace state is `data/workspace.sqlite3`; controlled source copies are in `data/uploads/`. Both are ignored by Git.
+- Input limits: 10 MB per source, 20,000 rows per table, 100 columns, 25 SQLite tables and 250,000 cells per source. Admitted rows are scanned in full.
+- Persisted field evidence contains aggregates. Uploaded source copies, declarations, field names and reviewer text can still be sensitive.
+- The deterministic core works without an external provider. Optional Gemini review uses an external service.
+- Technical evidence for human review: no automatic lawful-basis decision, legal compliance finding or universal data-flow inference.
+
+PS-019 also requires organizer-specific repository/report deliverables. The [submission checklist](docs/EVALUATION_PROTOCOL.md) records the remaining human annotation, taxonomy confirmation and official-template work.
