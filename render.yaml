@@ -1,0 +1,21 @@
+# Render Blueprint: one free web service running the API and web UI together.
+# Free plan limits: no persistent disk (data resets on restart/redeploy/sleep) and the
+# service sleeps after 15 minutes without traffic (about a minute to wake).
+services:
+  - type: web
+    name: privacytwin
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # Prompted in the dashboard; never committed.
+      - key: SITE_PASSWORD
+        sync: false
+      - key: SITE_USERNAME
+        value: privacytwin
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-lite

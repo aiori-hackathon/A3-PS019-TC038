@@ -92,6 +92,11 @@ def create_app(db_path=None):
     def ai_status():
         return ai.status()
 
+    @app.get("/api/ai/models")
+    def ai_models(refresh: bool = False):
+        # Lists the Gemini text models this server's key can use, best fallback candidates first.
+        return ai.models(refresh)
+
     @app.post("/api/ai/runs")
     def ai_start(body: RunOptions):
         return ai.start(body)
@@ -135,7 +140,11 @@ def create_app(db_path=None):
 
     @app.get("/")
     def home():
-        return RedirectResponse("http://127.0.0.1:3000")
+        # The UI is served separately; redirect only when its public URL is configured.
+        web_url = os.environ.get("PRIVACYTWIN_WEB_URL", "").strip()
+        if web_url:
+            return RedirectResponse(web_url)
+        return {"service": "PrivacyTwin API", "health": "/api/health"}
 
     @app.get("/api/health")
     def health():
