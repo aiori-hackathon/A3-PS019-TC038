@@ -10,6 +10,8 @@ For example, an `employee_id` column changes from internal IDs to phone-shaped v
 
 _Actual application screenshot using synthetic data. Candidate labels, review states and counts come from committed scans._
 
+**Live demo:** [privacytwin.onrender.com](https://privacytwin.onrender.com/) — password-protected; ask the team for access. Hosted on Render's free plan: the first visit after idle can take about a minute, and the workspace resets on restart, so use the [synthetic examples](docs/examples/) to try it.
+
 **Start here:** [Install and build](docs/BUILD.md) · [User guide](docs/USER_MANUAL.md) · [42-screenshot walkthrough](docs/walkthrough/WALKTHROUGH.md) · [Judge guide](docs/JUDGES_GUIDE.md) · [Reports](#reports-and-demonstration)
 
 ## Start the app

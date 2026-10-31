@@ -1,0 +1,10 @@
+node_modules
+.next
+test-results*
+playwright-report*
+tests
+live-guide
+walkthrough
+scripts
+*.log
+.env*

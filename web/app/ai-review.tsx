@@ -171,7 +171,10 @@ export default function AIReview({
       </div>
       <div className="automation-model">
         <strong>{status?.model || "Gemini"}</strong>
-        <span>Free-tier model · no fallback · no paid tools</span>
+        <span>
+          Preferred model · switches to another available model if needed ·
+          no paid tools
+        </span>
       </div>
       <div className="automation-settings">
         <label>
@@ -278,8 +281,11 @@ export default function AIReview({
       <details className="analysis-basis">
         <summary>Free-tier usage</summary>
         <p>
-          Only the configured free-tier-eligible model is used. Quota errors
-          pause the run; there are no automatic retries or model switches.
+          The server tries its preferred model first (GEMINI_MODEL). If that
+          model is unavailable for the key or out of quota, it lists the
+          key&apos;s available Gemini text models and tries the next one. If
+          every model tried is out of quota, the run pauses and keeps its
+          progress. Each proposal records the model that produced it.
           Google controls the project’s billing tier; keep this key on a
           free-tier project. Google’s free-tier terms may allow submitted data
           to improve its products.
