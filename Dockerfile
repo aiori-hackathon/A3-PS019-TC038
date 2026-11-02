@@ -7,6 +7,9 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py ./
 COPY core ./core
+# Read at runtime: evaluation labels (Run evaluation) and the bundled verifier (evidence package export).
+COPY evaluation/cases.json ./evaluation/cases.json
+COPY tools/verify_evidence.py ./tools/verify_evidence.py
 # Workspace database and uploads live on a mounted volume at /data.
 RUN mkdir -p /data
 EXPOSE 8000

@@ -6,9 +6,10 @@ web/test-results*
 web/playwright-report*
 docs
 demo
-evaluation
 tests
-tools
+# Runtime needs evaluation/cases.json (Run evaluation) and tools/verify_evidence.py (evidence package).
+tools/*
+!tools/verify_evidence.py
 Proposal
 *.pdf
 *.pptx
