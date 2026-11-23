@@ -1,6 +1,6 @@
 # Deploying PrivacyTwin
 
-The API and the frontend deploy separately. The frontend is plain static files.
+The frontend is plain static files. On Render the API serves them from one container; elsewhere the two can be hosted separately.
 
 ## Render: single container (used for the live demo)
 
