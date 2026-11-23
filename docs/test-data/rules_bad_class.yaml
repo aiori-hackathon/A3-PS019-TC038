@@ -1,0 +1,9 @@
+name: bad
+version: 1.0.0
+signal_weights: {header: 0.35, value: 0.30, validator: 0.35}
+bands: {high: 0.75, medium: 0.55}
+rules:
+  - id: secret
+    name: Secret thing
+    class: SECRET
+    header_keywords: [secret]

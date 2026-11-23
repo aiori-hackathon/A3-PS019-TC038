@@ -1,0 +1,4 @@
+source,table,column,purpose,retention,owner,legal_basis,system_of_record
+,customers,,Account management,3 years,Customer operations,Contract (declared),CRM
+,no_such_table,,Anything,1 year,,,
+,customers,email,,,,,

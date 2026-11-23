@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Tests (incl. no-raw-values acceptance test) with coverage
+        run: python -m pytest -q --cov=privacytwin --cov-report=term-missing:skip-covered --cov-fail-under=80
+      - name: Evaluation gate (macro F1 >= 0.90)
+        run: python -m privacytwin.eval --no-write --min-macro-f1 0.90
+      - name: Automated end-to-end flow test (DRDO-style synthetic estate, offline engine)
+        run: python tools/flow_test.py --offline
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run typecheck
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-out
+          path: web/out
+
+  e2e:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-out
+          path: web/out
+      - name: Start API and static site
+        run: |
+          PRIVACYTWIN_DB=/tmp/pt.sqlite3 PRIVACYTWIN_ALLOWED_ORIGINS=http://127.0.0.1:3000 nohup uvicorn privacytwin.api:app --port 8000 > api.log 2>&1 &
+          nohup python -m http.server 3000 --bind 127.0.0.1 --directory web/out > web.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/health && break; sleep 1; done
+      - name: Playwright smoke test
+        working-directory: web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npx playwright test smoke
+      - if: failure()
+        run: cat api.log web.log

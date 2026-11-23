@@ -1,0 +1,17 @@
+name: Keep demo API warm
+
+# Optional. Render's free tier sleeps after ~15 minutes idle. Set the repository
+# variable API_HEALTH_URL (e.g. https://privacytwin-api.onrender.com/health) to enable.
+on:
+  schedule:
+    - cron: "*/10 6-20 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    if: ${{ vars.API_HEALTH_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS --max-time 60 "${{ vars.API_HEALTH_URL }}" || true

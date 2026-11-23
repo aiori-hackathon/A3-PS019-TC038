@@ -1,4 +1,8 @@
-fastapi>=0.115
-uvicorn>=0.30
-python-multipart>=0.0.20
-regex>=2024.11.6
+# Runtime (backend)
+fastapi==0.115.6
+uvicorn==0.34.0
+python-multipart==0.0.20
+PyYAML==6.0.2
+regex==2024.11.6
+# Optional: PostgreSQL sources
+# psycopg[binary]==3.2.3

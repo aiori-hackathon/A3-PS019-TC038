@@ -1,6 +1,6 @@
-# Render Blueprint: one free web service running the API and web UI together.
+# Render Blueprint: one free web service running the API and the web UI together.
 # Free plan limits: no persistent disk (data resets on restart/redeploy/sleep) and the
-# service sleeps after 15 minutes without traffic (about a minute to wake).
+# service sleeps after 15 minutes without traffic (the app shows a wake-up screen).
 services:
   - type: web
     name: privacytwin
@@ -11,11 +11,11 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
-      - key: GEMINI_API_KEY
-        sync: false # Prompted in the dashboard; never committed.
-      - key: SITE_PASSWORD
+      - key: GROQ_API_KEY         # optional: enables Ask AI, AI analyst and auto-triage (metadata only)
+        sync: false               # set in the dashboard; never committed
+      - key: GROQ_MODEL           # optional override; default openai/gpt-oss-120b
         sync: false
-      - key: SITE_USERNAME
-        value: privacytwin
-      - key: GEMINI_MODEL
-        value: gemini-3.1-flash-lite
+      - key: PRIVACYTWIN_SECRET
+        generateValue: true
+      - key: PRIVACYTWIN_FINGERPRINT_PEPPER
+        generateValue: true

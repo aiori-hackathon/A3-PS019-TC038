@@ -1,0 +1,15 @@
+class,precision,recall,f1,support
+IDENTITY,1.0,0.9697,0.9846,33
+CONTACT,1.0,1.0,1.0,34
+GOVERNMENT_ID,1.0,0.9091,0.9524,22
+FINANCIAL,0.9333,1.0,0.9655,14
+LOCATION,0.9697,1.0,0.9846,32
+macro,0.9806,0.9758,0.9774,
+micro,0.9851,0.9778,0.9814,
+
+kind,source,table,column,true_class,predicted,confidence,likely_cause
+FN,hard_cases.csv,hard_cases,aadhaar_masked,GOVERNMENT_ID,NOT_PERSONAL,0.175,"Only 0% of values matched the Aadhaar number pattern (unusual format, masking or mixed content)"
+FN,hard_cases.csv,hard_cases,data1,IDENTITY,NOT_PERSONAL,0.0,"'Date of birth' needs header support, and the header 'data1' gave no hint"
+FN,healthcare_appointments.csv,healthcare_appointments,abha_number,GOVERNMENT_ID,NOT_PERSONAL,0.3114,No rule recognises this identifier's format or header (a rule could be added in the Rule Playground)
+FP,retail_bank.sqlite,branches,branch_city,NOT_PERSONAL,LOCATION,0.85,"Header and values both look like City or state; only the table's context shows the values describe a business object, not a person"
+FP,retail_bank.sqlite,branches,ifsc_code,NOT_PERSONAL,FINANCIAL,1.0,"Header and values both look like IFSC code; only the table's context shows the values describe a business object, not a person"

@@ -1,0 +1,348 @@
+{
+  "benchmark": "PrivacyTwin synthetic benchmark (Faker en_IN + custom generators; no real people)",
+  "generated_at": "2026-11-22T20:08:04+00:00",
+  "ruleset_version": "1.0.0",
+  "ruleset_hash": "3d255e13e6b3909b26c29a067532529b8b401850d40b2024ea767f40f5e783d7",
+  "datasets": [
+    "ecommerce_orders.csv",
+    "hard_cases.csv",
+    "healthcare_appointments.csv",
+    "hr_export.csv",
+    "loan_applications.csv",
+    "marketing_leads.csv",
+    "retail_bank.sqlite",
+    "telecom_crm.sqlite"
+  ],
+  "tables": 14,
+  "per_class": {
+    "IDENTITY": {
+      "precision": 1.0,
+      "recall": 0.9697,
+      "f1": 0.9846,
+      "support": 33,
+      "tp": 32,
+      "fp": 0,
+      "fn": 1
+    },
+    "CONTACT": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 34,
+      "tp": 34,
+      "fp": 0,
+      "fn": 0
+    },
+    "GOVERNMENT_ID": {
+      "precision": 1.0,
+      "recall": 0.9091,
+      "f1": 0.9524,
+      "support": 22,
+      "tp": 20,
+      "fp": 0,
+      "fn": 2
+    },
+    "FINANCIAL": {
+      "precision": 0.9333,
+      "recall": 1.0,
+      "f1": 0.9655,
+      "support": 14,
+      "tp": 14,
+      "fp": 1,
+      "fn": 0
+    },
+    "LOCATION": {
+      "precision": 0.9697,
+      "recall": 1.0,
+      "f1": 0.9846,
+      "support": 32,
+      "tp": 32,
+      "fp": 1,
+      "fn": 0
+    }
+  },
+  "macro": {
+    "precision": 0.9806,
+    "recall": 0.9758,
+    "f1": 0.9774
+  },
+  "micro": {
+    "precision": 0.9851,
+    "recall": 0.9778,
+    "f1": 0.9814
+  },
+  "accuracy": 0.9802,
+  "not_personal": {
+    "support": 118,
+    "correct": 116,
+    "specificity": 0.9831
+  },
+  "confusion": {
+    "IDENTITY": {
+      "IDENTITY": 32,
+      "CONTACT": 0,
+      "GOVERNMENT_ID": 0,
+      "FINANCIAL": 0,
+      "LOCATION": 0,
+      "NOT_PERSONAL": 1
+    },
+    "CONTACT": {
+      "IDENTITY": 0,
+      "CONTACT": 34,
+      "GOVERNMENT_ID": 0,
+      "FINANCIAL": 0,
+      "LOCATION": 0,
+      "NOT_PERSONAL": 0
+    },
+    "GOVERNMENT_ID": {
+      "IDENTITY": 0,
+      "CONTACT": 0,
+      "GOVERNMENT_ID": 20,
+      "FINANCIAL": 0,
+      "LOCATION": 0,
+      "NOT_PERSONAL": 2
+    },
+    "FINANCIAL": {
+      "IDENTITY": 0,
+      "CONTACT": 0,
+      "GOVERNMENT_ID": 0,
+      "FINANCIAL": 14,
+      "LOCATION": 0,
+      "NOT_PERSONAL": 0
+    },
+    "LOCATION": {
+      "IDENTITY": 0,
+      "CONTACT": 0,
+      "GOVERNMENT_ID": 0,
+      "FINANCIAL": 0,
+      "LOCATION": 32,
+      "NOT_PERSONAL": 0
+    },
+    "NOT_PERSONAL": {
+      "IDENTITY": 0,
+      "CONTACT": 0,
+      "GOVERNMENT_ID": 0,
+      "FINANCIAL": 1,
+      "LOCATION": 1,
+      "NOT_PERSONAL": 116
+    }
+  },
+  "labels": [
+    "IDENTITY",
+    "CONTACT",
+    "GOVERNMENT_ID",
+    "FINANCIAL",
+    "LOCATION",
+    "NOT_PERSONAL"
+  ],
+  "columns": 253,
+  "per_dataset": {
+    "ecommerce_orders.csv": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "columns": 30,
+      "accuracy": 1.0
+    },
+    "hard_cases.csv": {
+      "precision": 1.0,
+      "recall": 0.9444,
+      "f1": 0.9701,
+      "columns": 53,
+      "accuracy": 0.9623
+    },
+    "healthcare_appointments.csv": {
+      "precision": 0.75,
+      "recall": 0.75,
+      "f1": 0.75,
+      "columns": 22,
+      "accuracy": 0.9545
+    },
+    "hr_export.csv": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "columns": 28,
+      "accuracy": 1.0
+    },
+    "loan_applications.csv": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "columns": 25,
+      "accuracy": 1.0
+    },
+    "marketing_leads.csv": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "columns": 22,
+      "accuracy": 1.0
+    },
+    "retail_bank.sqlite": {
+      "precision": 0.92,
+      "recall": 1.0,
+      "f1": 0.9556,
+      "columns": 44,
+      "accuracy": 0.9545
+    },
+    "telecom_crm.sqlite": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "columns": 29,
+      "accuracy": 1.0
+    }
+  },
+  "errors": [
+    {
+      "kind": "FN",
+      "source": "hard_cases.csv",
+      "table": "hard_cases",
+      "column": "aadhaar_masked",
+      "true_class": "GOVERNMENT_ID",
+      "predicted": "NOT_PERSONAL",
+      "confidence": 0.175,
+      "rule_id": null,
+      "signals": {
+        "header": 1.0,
+        "value": 0.0,
+        "validator": 0.0,
+        "embedded": 0.0
+      },
+      "note": "masked values (expected FN)",
+      "masked_examples": [
+        "AAAA AAAA 9999"
+      ],
+      "likely_cause": "Only 0% of values matched the Aadhaar number pattern (unusual format, masking or mixed content)"
+    },
+    {
+      "kind": "FN",
+      "source": "hard_cases.csv",
+      "table": "hard_cases",
+      "column": "data1",
+      "true_class": "IDENTITY",
+      "predicted": "NOT_PERSONAL",
+      "confidence": 0.0,
+      "rule_id": null,
+      "signals": {
+        "header": 0.0,
+        "value": 0.0,
+        "validator": 0.0,
+        "embedded": 0.0
+      },
+      "note": "DOB under a generic header (expected FN: rule needs header)",
+      "masked_examples": [
+        "9999-99-99"
+      ],
+      "likely_cause": "'Date of birth' needs header support, and the header 'data1' gave no hint"
+    },
+    {
+      "kind": "FN",
+      "source": "healthcare_appointments.csv",
+      "table": "healthcare_appointments",
+      "column": "abha_number",
+      "true_class": "GOVERNMENT_ID",
+      "predicted": "NOT_PERSONAL",
+      "confidence": 0.3114,
+      "rule_id": null,
+      "signals": {
+        "header": 0.0,
+        "value": 1.0,
+        "validator": 0.0325,
+        "embedded": 0.0
+      },
+      "note": "Ayushman Bharat health ID: no rule yet (expected FN)",
+      "masked_examples": [
+        "99-9999-9999-9999"
+      ],
+      "likely_cause": "No rule recognises this identifier's format or header (a rule could be added in the Rule Playground)"
+    },
+    {
+      "kind": "FP",
+      "source": "retail_bank.sqlite",
+      "table": "branches",
+      "column": "branch_city",
+      "true_class": "NOT_PERSONAL",
+      "predicted": "LOCATION",
+      "confidence": 0.85,
+      "rule_id": "place",
+      "signals": {
+        "header": 1.0,
+        "value": 1.0,
+        "validator": 1.0,
+        "embedded": 0.0
+      },
+      "note": "branch location, not a person's (expected FP)",
+      "masked_examples": [
+        "Ah****",
+        "In****",
+        "Lu****"
+      ],
+      "likely_cause": "Header and values both look like City or state; only the table's context shows the values describe a business object, not a person"
+    },
+    {
+      "kind": "FP",
+      "source": "retail_bank.sqlite",
+      "table": "branches",
+      "column": "ifsc_code",
+      "true_class": "NOT_PERSONAL",
+      "predicted": "FINANCIAL",
+      "confidence": 1.0,
+      "rule_id": "ifsc",
+      "signals": {
+        "header": 1.0,
+        "value": 1.0,
+        "validator": 1.0,
+        "embedded": 0.0
+      },
+      "note": "branch routing code; not about a person (expected FP)",
+      "masked_examples": [
+        "HDFC0XXXXXX",
+        "CNRB0XXXXXX",
+        "KKBK0XXXXXX"
+      ],
+      "likely_cause": "Header and values both look like IFSC code; only the table's context shows the values describe a business object, not a person"
+    }
+  ],
+  "ablation": [
+    {
+      "variant": "header_only",
+      "label": "Header only",
+      "macro_f1": 0.84,
+      "micro_f1": 0.85,
+      "macro_precision": 0.9625,
+      "macro_recall": 0.7646,
+      "accuracy": 0.8617
+    },
+    {
+      "variant": "header_value",
+      "label": "Header + value",
+      "macro_f1": 0.9143,
+      "micro_f1": 0.917,
+      "macro_precision": 0.9791,
+      "macro_recall": 0.8623,
+      "accuracy": 0.917
+    },
+    {
+      "variant": "all_signals",
+      "label": "Header + value + validator",
+      "macro_f1": 0.9774,
+      "micro_f1": 0.9814,
+      "macro_precision": 0.9806,
+      "macro_recall": 0.9758,
+      "accuracy": 0.9802
+    },
+    {
+      "variant": "value_validator",
+      "label": "Value + validator (no header)",
+      "macro_f1": 0.8358,
+      "micro_f1": 0.8426,
+      "macro_precision": 0.9905,
+      "macro_recall": 0.7347,
+      "accuracy": 0.8538
+    }
+  ],
+  "disclaimer": "Technical evidence for human review. Not a legal determination.",
+  "caveat": "Synthetic data written by the project team. Results show how the rules behave on these cases; they are not a guarantee of accuracy on other data."
+}

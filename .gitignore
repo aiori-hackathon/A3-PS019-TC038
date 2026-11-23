@@ -7,7 +7,6 @@ node_modules/
 .next/
 *.tsbuildinfo
 .env*
-!.env.example
 data/
 test-results*/
 playwright-report*/
@@ -23,3 +22,11 @@ docs/ai-live/Actual-AI-Review-70-Percent.zip
 docs/ai-live-95-reference/
 docs/ai-live-70-attempt-1/
 docs/ai-live/screenshots/05-provider-error.png
+.coverage
+coverage.xml
+htmlcov/
+web/out/
+test-results/
+playwright-report/
+web/lib/eval-results.json
+docs/test-data/oversize_25mb.csv

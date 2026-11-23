@@ -1,0 +1,207 @@
+# PrivacyTwin default rule set
+#
+# Every column is scored against every enabled rule using three transparent signals:
+#   header    - 1 if the normalised column name matches one of `header_keywords`
+#               (and none of `header_exclude`), else 0
+#   value     - share of sampled non-null values that fully match `value_regex`
+#   validator - share of sampled non-null values that pass the named validator
+#               (checksums, ranges, allowed prefixes; see privacytwin/validators.py)
+#
+#   score = rule.weight * (W_header*header + W_value*value + W_validator*validator)
+#
+# Rules with `requires_header: true` score 0 unless the header matches, because
+# their value shapes (six digits, nine-to-eighteen digits, dates) are too common.
+# Columns whose names hit `negative_keywords` (order_id, sku, txn_ref ...) get
+# their score multiplied by `negative_penalty`, unless a checksum validator passes
+# for at least 90% of values.
+#
+# Confidence bands: HIGH >= bands.high, MEDIUM >= bands.medium, LOW >= rule.threshold.
+# Anything below every rule threshold is NOT_PERSONAL.
+#
+# A match is a candidate for human review. It is never a legal determination.
+
+name: PrivacyTwin default rules
+version: 1.0.0
+signal_weights: {header: 0.35, value: 0.30, validator: 0.35}
+bands: {high: 0.75, medium: 0.55}
+negative_penalty: 0.4
+negative_keywords: [order, invoice, sku, txn, transaction, ref, reference, timestamp, created, updated, modified,
+  product, item, hash, uuid, guid, sequence, seq, batch, ticket, version, otp, amount, price, qty, quantity, code,
+  tracking, awb, shipment, serial, model, voucher, coupon, session, token, checksum, id, imei, iccid, sim,
+  po, indent, challan, grn, requisition, tender, lot, docket]
+rules:
+  - id: email
+    name: Email address
+    class: CONTACT
+    header_keywords: [email, e_mail, mail, email_id, emailid, mail_id, email_address]
+    value_regex: '[^@\s]+@[^@\s]+\.[^@\s]+'
+    validator: email
+    embedded: true
+  - id: mobile_in
+    name: Indian mobile number
+    class: CONTACT
+    header_keywords: [mobile, mob, phone, ph, ph_no, cell, contact_no, contact_number, whatsapp, mobile_no, tel,
+      telephone, phone_no, phone_number, sampark, alt_mobile, mob_no]
+    value_regex: '(?:\+?91|0)?[6-9]\d{9}'
+    normalise: strip_separators
+    validator: indian_mobile
+    embedded: true
+  - id: upi_id
+    name: UPI ID
+    class: FINANCIAL
+    header_keywords: [upi, vpa, upi_id, upi_handle, payment_address]
+    value_regex: '[A-Za-z0-9][A-Za-z0-9.\-_]{1,255}@[A-Za-z]{2,64}'
+    validator: upi_id
+  - id: aadhaar
+    name: Aadhaar number
+    class: GOVERNMENT_ID
+    header_keywords: [aadhaar, aadhar, adhaar, aadhaar_no, uid, uidai, aadhaar_number]
+    value_regex: '[2-9]\d{11}'
+    normalise: strip_separators
+    validator: aadhaar
+  - id: pan
+    name: PAN
+    class: GOVERNMENT_ID
+    header_keywords: [pan, pan_no, pan_number, pancard, pan_card]
+    value_regex: '[A-Za-z]{5}\d{4}[A-Za-z]'
+    normalise: upper
+    validator: pan
+  - id: passport_in
+    name: Indian passport number
+    class: GOVERNMENT_ID
+    header_keywords: [passport, passport_no, passport_number, ppt_no]
+    value_regex: '[A-Za-z]\d{7}'
+    normalise: upper
+    validator: passport
+    weight: 0.95
+  - id: voter_id
+    name: Voter ID (EPIC)
+    class: GOVERNMENT_ID
+    header_keywords: [voter, epic, voter_id, epic_no, electoral, voter_card]
+    value_regex: '[A-Za-z]{3}\d{7}'
+    normalise: upper
+    validator: voter_id
+    weight: 0.95
+  - id: driving_licence
+    name: Driving licence
+    class: GOVERNMENT_ID
+    header_keywords: [dl, dl_no, licence, license, driving, driving_licence, driving_license, licence_no]
+    value_regex: '[A-Za-z]{2}\d{13}'
+    normalise: strip_separators
+    validator: driving_licence
+  - id: gstin
+    name: GSTIN
+    class: GOVERNMENT_ID
+    header_keywords: [gstin, gst, gst_no, gst_number, gstin_no]
+    value_regex: '\d{2}[A-Za-z]{5}\d{4}[A-Za-z][0-9A-Za-z][Zz][0-9A-Za-z]'
+    normalise: upper
+    validator: gstin
+  - id: ifsc
+    name: IFSC code
+    class: FINANCIAL
+    header_keywords: [ifsc, ifsc_code, ifsc_no]
+    value_regex: '[A-Za-z]{4}0[A-Za-z0-9]{6}'
+    normalise: upper
+    validator: ifsc
+  - id: bank_account
+    name: Bank account number
+    class: FINANCIAL
+    header_keywords: [account, acct, acc_no, ac_no, account_no, account_number, bank_ac, bank_account, khata,
+      acct_no, beneficiary_account]
+    header_exclude: [type, status, manager, name, holder, open, opened, closed]
+    value_regex: '\d{9,18}'
+    normalise: strip_separators
+    validator: bank_account
+    requires_header: true
+  - id: card_number
+    name: Payment card number
+    class: FINANCIAL
+    header_keywords: [card, card_no, card_number, cc, cc_number, credit_card, debit_card, pan_card_number]
+    header_exclude: [type, network, expiry, holder, ration, voter, id]
+    value_regex: '\d{13,19}'
+    normalise: strip_separators
+    validator: card_number
+  - id: pin_code
+    name: PIN code
+    class: LOCATION
+    header_keywords: [pin, pincode, pin_code, postal, postal_code, zip, zipcode, postcode, zip_code]
+    value_regex: '[1-9]\d{5}'
+    normalise: strip_separators
+    validator: pin_code
+    requires_header: true
+  - id: address
+    name: Postal address
+    class: LOCATION
+    header_keywords: [address, addr, street, pata, locality, residence, address_line, addr1, addr2,
+      residential_address, permanent_address, billing_address, shipping_address]
+    header_exclude: [ip, mac, email, mail, web, url]
+    value_regex: '.*\d.*[A-Za-z]{3,}.*'
+    validator: address
+  - id: place
+    name: City or state
+    class: LOCATION
+    header_keywords: [city, town, district, state, shahar, location_city, home_city, native_place]
+    value_regex: '[A-Za-z][A-Za-z ]{1,39}'
+    validator: indian_place
+    weight: 0.85
+  - id: geo_pair
+    name: Latitude/longitude pair
+    class: LOCATION
+    header_keywords: [lat_long, latlong, latlng, geo, coordinates, coords, gps, geolocation, location]
+    value_regex: '-?\d{1,2}(?:\.\d+)?\s*[,; ]\s*-?\d{1,3}(?:\.\d+)?'
+    validator: lat_long_pair
+  - id: latitude
+    name: Latitude
+    class: LOCATION
+    header_keywords: [lat, latitude, gps_lat]
+    value_regex: '-?\d{1,2}\.\d+'
+    validator: latitude
+    requires_header: true
+  - id: longitude
+    name: Longitude
+    class: LOCATION
+    header_keywords: [lon, lng, long, longitude, gps_lon, gps_lng]
+    value_regex: '-?\d{1,3}\.\d+'
+    validator: longitude
+    requires_header: true
+  - id: ip_address
+    name: IP address
+    class: LOCATION
+    header_keywords: [ip, ip_address, ipaddr, client_ip, remote_addr, ipv4, ipv6, source_ip, login_ip]
+    value_regex: '[0-9A-Fa-f:.]{3,45}'
+    validator: ip_address
+  - id: date_of_birth
+    name: Date of birth
+    class: IDENTITY
+    header_keywords: [dob, birth, date_of_birth, birth_date, birthdate, janm, janam_tithi, d_o_b, birthday,
+      janm_tithi]
+    value_regex: '[0-9A-Za-z ,/.\-]{6,20}'
+    validator: date_of_birth
+    requires_header: true
+  - id: age
+    name: Age
+    class: IDENTITY
+    header_keywords: [age, umar, umra, age_years]
+    header_exclude: [page, usage, stage, wage, mileage, percentage, storage]
+    value_regex: '\d{1,3}'
+    validator: age
+    requires_header: true
+  - id: gender
+    name: Gender
+    class: IDENTITY
+    header_keywords: [gender, sex, ling]
+    value_regex: '[A-Za-z\-]{1,12}'
+    validator: gender
+    requires_header: true
+  - id: person_name
+    name: Person name
+    class: IDENTITY
+    header_keywords: [name, nm, full_name, first_name, last_name, fname, lname, cust_nm, cust_name, customer_name,
+      naam, nominee, father_name, mother_name, spouse_name, contact_person, emp_name, employee_name, holder_name,
+      account_holder, beneficiary, applicant, guardian, surname, given_name, middle_name, patient_name]
+    header_exclude: [product, company, bank, branch, file, table, item, brand, merchant, plan, scheme, city, state,
+      store, shop, category, campaign, host, domain, server, device, org, organisation, organization, vendor,
+      department, dept, team, course, project, event, tag, display, user, username, app, channel, source, employer,
+      insurer, hospital, school, college, firm, business, entity, enterprise, establishment, unit, lab, item]
+    value_regex: "[A-Za-z][A-Za-z.']*(?: [A-Za-z][A-Za-z.']*){0,4}"
+    validator: person_name

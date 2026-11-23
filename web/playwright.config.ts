@@ -1,38 +1,18 @@
 import { defineConfig } from "@playwright/test";
-import { resolve } from "node:path";
-import { randomUUID } from "node:crypto";
-const testDatabase = resolve(
-  process.cwd(),
-  "../data/test-runs",
-  randomUUID(),
-  "workspace.sqlite3",
-);
 
+// Expects the API on :8000 and the static site on :3000 (see README "Run the smoke test").
+// CI uses Playwright's Chromium; locally set PW_CHANNEL=msedge to use an installed Edge.
 export default defineConfig({
   testDir: "./tests",
-  timeout: 60000,
-  expect: { timeout: 12000 },
-  workers: 1,
+  timeout: 90_000,
+  expect: { timeout: 20_000 },
+  retries: process.env.CI ? 1 : 0,
+  reporter: [["list"]],
   use: {
-    baseURL: "http://127.0.0.1:3001",
-    channel: "msedge",
-    headless: true,
-    trace: "retain-on-failure",
-    viewport: { width: 1440, height: 1050 },
+    baseURL: process.env.PT_WEB_URL || "http://127.0.0.1:3000",
+    channel: process.env.PW_CHANNEL || undefined,
+    viewport: { width: 1440, height: 900 },
+    acceptDownloads: true,
+    colorScheme: "dark",
   },
-  webServer: [
-    {
-      command:
-        "..\\.venv\\Scripts\\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8001 --app-dir ..",
-      url: "http://127.0.0.1:8001/api/health",
-      env: { PRIVACYTWIN_DB: testDatabase },
-      reuseExistingServer: false,
-    },
-    {
-      command: "npm run dev -- --port 3001",
-      url: "http://127.0.0.1:3001",
-      env: { PRIVACYTWIN_API_URL: "http://127.0.0.1:8001" },
-      reuseExistingServer: false,
-    },
-  ],
 });

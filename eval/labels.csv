@@ -1,0 +1,254 @@
+source,table,column,true_class,note
+retail_bank.sqlite,customers,customer_id,NOT_PERSONAL,internal key
+retail_bank.sqlite,customers,full_name,IDENTITY,
+retail_bank.sqlite,customers,email,CONTACT,
+retail_bank.sqlite,customers,mobile_no,CONTACT,mixed formats
+retail_bank.sqlite,customers,dob,IDENTITY,
+retail_bank.sqlite,customers,gender,IDENTITY,
+retail_bank.sqlite,customers,pan,GOVERNMENT_ID,
+retail_bank.sqlite,customers,aadhaar_number,GOVERNMENT_ID,
+retail_bank.sqlite,customers,address,LOCATION,
+retail_bank.sqlite,customers,city,LOCATION,
+retail_bank.sqlite,customers,state,LOCATION,
+retail_bank.sqlite,customers,pincode,LOCATION,
+retail_bank.sqlite,customers,occupation,NOT_PERSONAL,"quasi-identifier, not personal alone"
+retail_bank.sqlite,customers,annual_income,NOT_PERSONAL,
+retail_bank.sqlite,customers,kyc_status,NOT_PERSONAL,
+retail_bank.sqlite,customers,created_at,NOT_PERSONAL,
+retail_bank.sqlite,accounts,account_id,NOT_PERSONAL,internal key
+retail_bank.sqlite,accounts,customer_id,NOT_PERSONAL,internal key
+retail_bank.sqlite,accounts,account_number,FINANCIAL,
+retail_bank.sqlite,accounts,ifsc,FINANCIAL,
+retail_bank.sqlite,accounts,branch_name,NOT_PERSONAL,
+retail_bank.sqlite,accounts,account_type,NOT_PERSONAL,
+retail_bank.sqlite,accounts,balance,NOT_PERSONAL,
+retail_bank.sqlite,accounts,opened_on,NOT_PERSONAL,
+retail_bank.sqlite,accounts,nominee_name,IDENTITY,
+retail_bank.sqlite,accounts,status,NOT_PERSONAL,
+retail_bank.sqlite,cards,card_id,NOT_PERSONAL,
+retail_bank.sqlite,cards,customer_id,NOT_PERSONAL,
+retail_bank.sqlite,cards,card_number,FINANCIAL,
+retail_bank.sqlite,cards,card_network,NOT_PERSONAL,
+retail_bank.sqlite,cards,expiry_month,NOT_PERSONAL,
+retail_bank.sqlite,cards,credit_limit,NOT_PERSONAL,
+retail_bank.sqlite,cards,cardholder_name,IDENTITY,upper case
+retail_bank.sqlite,upi_mandates,mandate_ref,NOT_PERSONAL,
+retail_bank.sqlite,upi_mandates,vpa,FINANCIAL,
+retail_bank.sqlite,upi_mandates,payer_mobile,CONTACT,
+retail_bank.sqlite,upi_mandates,amount,NOT_PERSONAL,
+retail_bank.sqlite,upi_mandates,frequency,NOT_PERSONAL,
+retail_bank.sqlite,upi_mandates,txn_ref,NOT_PERSONAL,12-digit number failing Verhoeff
+retail_bank.sqlite,branches,branch_code,NOT_PERSONAL,
+retail_bank.sqlite,branches,branch_name,NOT_PERSONAL,
+retail_bank.sqlite,branches,ifsc_code,NOT_PERSONAL,branch routing code; not about a person (expected FP)
+retail_bank.sqlite,branches,branch_city,NOT_PERSONAL,"branch location, not a person's (expected FP)"
+retail_bank.sqlite,branches,manager_email,CONTACT,staff email is personal data
+hr_export.csv,hr_export,emp_code,NOT_PERSONAL,
+hr_export.csv,hr_export,emp_nm,IDENTITY,abbreviated header
+hr_export.csv,hr_export,pita_ka_naam,IDENTITY,transliterated: father's name
+hr_export.csv,hr_export,mob,CONTACT,abbreviated header
+hr_export.csv,hr_export,alt_ph,CONTACT,
+hr_export.csv,hr_export,email_id,CONTACT,
+hr_export.csv,hr_export,janm_tithi,IDENTITY,transliterated: date of birth
+hr_export.csv,hr_export,ling,IDENTITY,transliterated: gender
+hr_export.csv,hr_export,umar,IDENTITY,transliterated: age
+hr_export.csv,hr_export,pata,LOCATION,transliterated: address
+hr_export.csv,hr_export,shahar,LOCATION,transliterated: city
+hr_export.csv,hr_export,pin,LOCATION,
+hr_export.csv,hr_export,aadhar_no,GOVERNMENT_ID,"misspelt header, spaced values"
+hr_export.csv,hr_export,pan_no,GOVERNMENT_ID,
+hr_export.csv,hr_export,bank_ac,FINANCIAL,
+hr_export.csv,hr_export,ifsc,FINANCIAL,
+hr_export.csv,hr_export,salary,NOT_PERSONAL,
+hr_export.csv,hr_export,designation,NOT_PERSONAL,
+hr_export.csv,hr_export,department,NOT_PERSONAL,
+hr_export.csv,hr_export,doj,NOT_PERSONAL,date of joining
+hr_export.csv,hr_export,reporting_mgr_code,NOT_PERSONAL,
+hr_export.csv,hr_export,emergency_contact,CONTACT,
+hr_export.csv,hr_export,father_name,IDENTITY,
+hr_export.csv,hr_export,marital_status,NOT_PERSONAL,
+hr_export.csv,hr_export,dl_no,GOVERNMENT_ID,
+hr_export.csv,hr_export,passport_no,GOVERNMENT_ID,60% null
+hr_export.csv,hr_export,voter_id,GOVERNMENT_ID,
+hr_export.csv,hr_export,blood_group,NOT_PERSONAL,out of scope classes
+ecommerce_orders.csv,ecommerce_orders,order_id,NOT_PERSONAL,10 digits starting 6-9: mobile-shaped
+ecommerce_orders.csv,ecommerce_orders,order_date,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,customer_name,IDENTITY,
+ecommerce_orders.csv,ecommerce_orders,shipping_address,LOCATION,
+ecommerce_orders.csv,ecommerce_orders,billing_pincode,LOCATION,
+ecommerce_orders.csv,ecommerce_orders,customer_phone,CONTACT,
+ecommerce_orders.csv,ecommerce_orders,customer_email,CONTACT,
+ecommerce_orders.csv,ecommerce_orders,sku,NOT_PERSONAL,EPIC-shaped product code
+ecommerce_orders.csv,ecommerce_orders,product_code,NOT_PERSONAL,passport-shaped product code
+ecommerce_orders.csv,ecommerce_orders,product_name,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,qty,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,unit_price,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,discount_code,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,payment_method,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,upi_id,FINANCIAL,50% null
+ecommerce_orders.csv,ecommerce_orders,invoice_no,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,txn_ref,NOT_PERSONAL,12-digit failing Verhoeff
+ecommerce_orders.csv,ecommerce_orders,awb_number,NOT_PERSONAL,courier airway bill
+ecommerce_orders.csv,ecommerce_orders,courier,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,delivery_lat,LOCATION,
+ecommerce_orders.csv,ecommerce_orders,delivery_lng,LOCATION,
+ecommerce_orders.csv,ecommerce_orders,device_ip,LOCATION,
+ecommerce_orders.csv,ecommerce_orders,user_agent,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,buyer_gstin,GOVERNMENT_ID,70% null
+ecommerce_orders.csv,ecommerce_orders,rating,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,review_text,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,created_at,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,updated_at,NOT_PERSONAL,
+ecommerce_orders.csv,ecommerce_orders,coupon,NOT_PERSONAL,PAN-shaped coupon code
+ecommerce_orders.csv,ecommerce_orders,return_window_days,NOT_PERSONAL,
+hard_cases.csv,hard_cases,col_1,CONTACT,misleading header
+hard_cases.csv,hard_cases,col_2,CONTACT,misleading header
+hard_cases.csv,hard_cases,col_3,IDENTITY,misleading header
+hard_cases.csv,hard_cases,col_4,GOVERNMENT_ID,misleading header
+hard_cases.csv,hard_cases,col_5,NOT_PERSONAL,"Aadhaar-shaped, fails Verhoeff"
+hard_cases.csv,hard_cases,col_6,GOVERNMENT_ID,misleading header
+hard_cases.csv,hard_cases,col_7,FINANCIAL,misleading header
+hard_cases.csv,hard_cases,col_8,NOT_PERSONAL,"card-shaped, fails Luhn"
+hard_cases.csv,hard_cases,col_9,LOCATION,misleading header
+hard_cases.csv,hard_cases,col_10,NOT_PERSONAL,
+hard_cases.csv,hard_cases,field_a,GOVERNMENT_ID,misleading header
+hard_cases.csv,hard_cases,field_b,LOCATION,misleading header
+hard_cases.csv,hard_cases,data1,IDENTITY,DOB under a generic header (expected FN: rule needs header)
+hard_cases.csv,hard_cases,email_mostly_null,CONTACT,90% null
+hard_cases.csv,hard_cases,phone_mostly_null,CONTACT,95% null
+hard_cases.csv,hard_cases,mobile_mixed_formats,CONTACT,
+hard_cases.csv,hard_cases,aadhaar_spaced,GOVERNMENT_ID,
+hard_cases.csv,hard_cases,aadhaar_masked,GOVERNMENT_ID,masked values (expected FN)
+hard_cases.csv,hard_cases,pan_lowercase,GOVERNMENT_ID,
+hard_cases.csv,hard_cases,remarks,CONTACT,phone numbers embedded in free text
+hard_cases.csv,hard_cases,notes,NOT_PERSONAL,
+hard_cases.csv,hard_cases,comments,CONTACT,emails embedded in free text
+hard_cases.csv,hard_cases,order_no,NOT_PERSONAL,mobile-shaped order number
+hard_cases.csv,hard_cases,invoice_number,NOT_PERSONAL,
+hard_cases.csv,hard_cases,sku_code,NOT_PERSONAL,EPIC-shaped
+hard_cases.csv,hard_cases,zip,LOCATION,
+hard_cases.csv,hard_cases,lat,LOCATION,
+hard_cases.csv,hard_cases,lon,LOCATION,
+hard_cases.csv,hard_cases,geo,LOCATION,
+hard_cases.csv,hard_cases,product_name,NOT_PERSONAL,
+hard_cases.csv,hard_cases,company_name,NOT_PERSONAL,
+hard_cases.csv,hard_cases,bank_name,NOT_PERSONAL,
+hard_cases.csv,hard_cases,status,NOT_PERSONAL,
+hard_cases.csv,hard_cases,amount,NOT_PERSONAL,
+hard_cases.csv,hard_cases,otp,NOT_PERSONAL,six digits like a PIN code
+hard_cases.csv,hard_cases,version,NOT_PERSONAL,
+hard_cases.csv,hard_cases,Contact,CONTACT,"CamelCase, generic header"
+hard_cases.csv,hard_cases,CustomerName,IDENTITY,CamelCase
+hard_cases.csv,hard_cases,DateOfBirth,IDENTITY,CamelCase
+hard_cases.csv,hard_cases,PinCode,LOCATION,CamelCase
+hard_cases.csv,hard_cases,MobileNumber,CONTACT,CamelCase
+hard_cases.csv,hard_cases,upi_handle,FINANCIAL,
+hard_cases.csv,hard_cases,ifsc_lower,FINANCIAL,
+hard_cases.csv,hard_cases,voterId,GOVERNMENT_ID,
+hard_cases.csv,hard_cases,DLNumber,GOVERNMENT_ID,
+hard_cases.csv,hard_cases,passportNo,GOVERNMENT_ID,
+hard_cases.csv,hard_cases,age_years,IDENTITY,
+hard_cases.csv,hard_cases,sex,IDENTITY,
+hard_cases.csv,hard_cases,job_title,NOT_PERSONAL,quasi-identifier only
+hard_cases.csv,hard_cases,country,NOT_PERSONAL,
+hard_cases.csv,hard_cases,state_name,LOCATION,
+hard_cases.csv,hard_cases,imei,NOT_PERSONAL,"Luhn-valid device ID, not a card"
+hard_cases.csv,hard_cases,sim_iccid,NOT_PERSONAL,"Luhn-valid SIM serial, not a card"
+telecom_crm.sqlite,subscribers,msisdn,CONTACT,telecom term; no header keyword
+telecom_crm.sqlite,subscribers,subscriber_name,IDENTITY,
+telecom_crm.sqlite,subscribers,alt_contact,CONTACT,
+telecom_crm.sqlite,subscribers,email,CONTACT,
+telecom_crm.sqlite,subscribers,dob,IDENTITY,
+telecom_crm.sqlite,subscribers,id_proof_type,NOT_PERSONAL,
+telecom_crm.sqlite,subscribers,id_proof_number,GOVERNMENT_ID,mixed ID types (expected FN)
+telecom_crm.sqlite,subscribers,plan_name,NOT_PERSONAL,
+telecom_crm.sqlite,subscribers,activation_date,NOT_PERSONAL,
+telecom_crm.sqlite,subscribers,circle,LOCATION,telecom circle = subscriber's home state
+telecom_crm.sqlite,subscribers,tower_lat_long,LOCATION,
+telecom_crm.sqlite,subscribers,last_login_ip,LOCATION,
+telecom_crm.sqlite,subscribers,arpu,NOT_PERSONAL,
+telecom_crm.sqlite,subscribers,imei,NOT_PERSONAL,Luhn-valid device ID
+telecom_crm.sqlite,subscribers,sim_serial,NOT_PERSONAL,
+telecom_crm.sqlite,recharges,recharge_id,NOT_PERSONAL,
+telecom_crm.sqlite,recharges,msisdn,CONTACT,
+telecom_crm.sqlite,recharges,amount,NOT_PERSONAL,
+telecom_crm.sqlite,recharges,channel,NOT_PERSONAL,
+telecom_crm.sqlite,recharges,upi_vpa,FINANCIAL,
+telecom_crm.sqlite,recharges,recharged_at,NOT_PERSONAL,
+telecom_crm.sqlite,recharges,retailer_code,NOT_PERSONAL,
+telecom_crm.sqlite,complaints,ticket_no,NOT_PERSONAL,
+telecom_crm.sqlite,complaints,msisdn,CONTACT,
+telecom_crm.sqlite,complaints,complaint_text,CONTACT,phone numbers embedded in text
+telecom_crm.sqlite,complaints,category,NOT_PERSONAL,
+telecom_crm.sqlite,complaints,agent_name,IDENTITY,staff names are personal data
+telecom_crm.sqlite,complaints,resolved_on,NOT_PERSONAL,
+telecom_crm.sqlite,complaints,escalation_email,CONTACT,
+healthcare_appointments.csv,healthcare_appointments,appointment_id,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,patient_name,IDENTITY,
+healthcare_appointments.csv,healthcare_appointments,patient_age,IDENTITY,
+healthcare_appointments.csv,healthcare_appointments,patient_gender,IDENTITY,
+healthcare_appointments.csv,healthcare_appointments,contact_number,CONTACT,
+healthcare_appointments.csv,healthcare_appointments,email_address,CONTACT,
+healthcare_appointments.csv,healthcare_appointments,residential_address,LOCATION,
+healthcare_appointments.csv,healthcare_appointments,city,LOCATION,
+healthcare_appointments.csv,healthcare_appointments,pin_code,LOCATION,
+healthcare_appointments.csv,healthcare_appointments,abha_number,GOVERNMENT_ID,Ayushman Bharat health ID: no rule yet (expected FN)
+healthcare_appointments.csv,healthcare_appointments,doctor_name,IDENTITY,
+healthcare_appointments.csv,healthcare_appointments,department,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,appointment_date,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,slot_time,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,fee,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,payment_mode,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,emergency_contact_name,IDENTITY,
+healthcare_appointments.csv,healthcare_appointments,emergency_contact_phone,CONTACT,
+healthcare_appointments.csv,healthcare_appointments,bed_no,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,visit_reason,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,referral_code,NOT_PERSONAL,
+healthcare_appointments.csv,healthcare_appointments,insurer,NOT_PERSONAL,
+loan_applications.csv,loan_applications,application_id,NOT_PERSONAL,
+loan_applications.csv,loan_applications,applicant_name,IDENTITY,
+loan_applications.csv,loan_applications,co_applicant,IDENTITY,50% null
+loan_applications.csv,loan_applications,applicant_mobile,CONTACT,
+loan_applications.csv,loan_applications,applicant_email,CONTACT,
+loan_applications.csv,loan_applications,pan_number,GOVERNMENT_ID,
+loan_applications.csv,loan_applications,aadhaar,GOVERNMENT_ID,
+loan_applications.csv,loan_applications,dob,IDENTITY,dotted date format
+loan_applications.csv,loan_applications,residential_city,LOCATION,
+loan_applications.csv,loan_applications,permanent_address,LOCATION,
+loan_applications.csv,loan_applications,pincode,LOCATION,
+loan_applications.csv,loan_applications,employer_name,NOT_PERSONAL,company names built from surnames
+loan_applications.csv,loan_applications,monthly_income,NOT_PERSONAL,
+loan_applications.csv,loan_applications,loan_amount,NOT_PERSONAL,
+loan_applications.csv,loan_applications,tenure_months,NOT_PERSONAL,
+loan_applications.csv,loan_applications,emi,NOT_PERSONAL,
+loan_applications.csv,loan_applications,cibil_score,NOT_PERSONAL,
+loan_applications.csv,loan_applications,salary_account_no,FINANCIAL,
+loan_applications.csv,loan_applications,salary_ifsc,FINANCIAL,
+loan_applications.csv,loan_applications,disbursal_upi,FINANCIAL,
+loan_applications.csv,loan_applications,guarantor_name,IDENTITY,
+loan_applications.csv,loan_applications,guarantor_phone,CONTACT,
+loan_applications.csv,loan_applications,application_ts,NOT_PERSONAL,
+loan_applications.csv,loan_applications,loan_status,NOT_PERSONAL,
+loan_applications.csv,loan_applications,gender,IDENTITY,
+marketing_leads.csv,marketing_leads,lead_id,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,lead_name,IDENTITY,
+marketing_leads.csv,marketing_leads,lead_email,CONTACT,
+marketing_leads.csv,marketing_leads,whatsapp_no,CONTACT,
+marketing_leads.csv,marketing_leads,source_campaign,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,utm_source,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,landing_page,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,city,LOCATION,
+marketing_leads.csv,marketing_leads,interested_product,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,consent_flag,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,lead_score,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,created_on,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,assigned_to,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,last_contacted,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,preferred_language,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,budget,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,occupation,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,company,NOT_PERSONAL,
+marketing_leads.csv,marketing_leads,ip_address,LOCATION,
+marketing_leads.csv,marketing_leads,geo_coordinates,LOCATION,
+marketing_leads.csv,marketing_leads,date_of_birth,IDENTITY,
+marketing_leads.csv,marketing_leads,pan_card,GOVERNMENT_ID,

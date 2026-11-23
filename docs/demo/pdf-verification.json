@@ -1,0 +1,16 @@
+{
+  "file": "C:\\PrivacyTwin\\docs\\demo\\PrivacyTwin_UI_Flow_and_Demo_Guide.pdf",
+  "pages": 26,
+  "objects": 101,
+  "screenshots": 14,
+  "bytes": 2635431,
+  "text_items": 685,
+  "checks": [
+    "PDF header",
+    "xref written",
+    "26 pages",
+    "text within page bounds",
+    "3 clickable source links",
+    "page bookmarks"
+  ]
+}

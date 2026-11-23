@@ -1,163 +1,145 @@
 # PrivacyTwin
 
-**Find personal data. Keep its evidence current.**
+[![CI](https://github.com/aiori-hackathon/A3-PS019-TC038/actions/workflows/ci.yml/badge.svg)](https://github.com/aiori-hackathon/A3-PS019-TC038/actions/workflows/ci.yml)
 
-PrivacyTwin scans CSV files and SQLite databases, explains candidate personal-data fields, and connects them to owner-declared purpose and retention. **ReviewGuard** keeps classification and metadata reviews separate: when evidence changes, the affected review reopens with a reason.
+**Your personal-data estate, mirrored. Evidence, not verdicts.**
 
-For example, an `employee_id` column changes from internal IDs to phone-shaped values. Its classification review reopens; its unchanged metadata review and the other fields' reviews stay current.
+**Live demo:** [privacytwin.onrender.com](https://privacytwin.onrender.com/). Hosted on Render's free plan: the first visit after idle shows a wake-up screen (about a minute), and the workspace resets on restart. Click **Load sample company** to explore.
 
-![Actual inventory after a replacement scan: employee_id classification reopened, metadata and other reviews current](docs/walkthrough/screenshots/17-scoped-reopening.png)
+**Proposal:** [slides (PDF)](Proposal/AIROI3_PROPOSAL_PPT.pdf) · [slides (PPTX)](Proposal/PrivacyTwin_AIORI3_Proposal.pptx) · [proposed structure](Proposed-structure-hackathon.pdf) · **Demo guide:** [UI flow and demo guide (PDF)](docs/demo/PrivacyTwin_UI_Flow_and_Demo_Guide.pdf)
 
-_Actual application screenshot using synthetic data. Candidate labels, review states and counts come from committed scans._
+PrivacyTwin is a **digital twin of an organisation's personal-data estate** (hackathon problem statement PS-019: personal-data discovery and privacy evidence inventory). Every scan creates a snapshot of the twin. You can:
 
-**Live demo:** [privacytwin.onrender.com](https://privacytwin.onrender.com/) — password-protected; ask the team for access. Hosted on Render's free plan: the first visit after idle can take about a minute, and the workspace resets on restart, so use the [synthetic examples](docs/examples/) to try it.
+1. **Discover** where personal data lives: CSV, SQLite and PostgreSQL, with Indian identifiers first (Aadhaar with Verhoeff, PAN, GSTIN with checksum, UPI, IFSC and more).
+2. **Rewind** the twin with the Time Machine: diff any two scans, with drift alerts.
+3. **Simulate** what-ifs: breach blast radius, re-identification risk (k-anonymity) and retention.
+4. **Prove** detection accuracy: published precision and recall on a labelled benchmark, every error explained.
+5. **Export** tamper-evident evidence: a ZIP with a SHA-256 manifest you can verify file by file.
 
-**Start here:** [Install and build](docs/BUILD.md) · [User guide](docs/USER_MANUAL.md) · [42-screenshot walkthrough](docs/walkthrough/WALKTHROUGH.md) · [Judge guide](docs/JUDGES_GUIDE.md) · [Reports](#reports-and-demonstration)
+**AI is visible end to end**: explainable AI detection on every column, an AI analyst summary on the Overview, Ask AI, and Explain with AI on each finding, powered by **Groq** (`openai/gpt-oss-120b`) when a key is configured and by an offline engine otherwise. Only metadata is sent to the LLM, never raw values.
 
-## Start the app
+**Opt-in AI auto-triage**: Sources and Review queue include an Auto-approve toggle (off by default). Enabling it reviews existing untouched HIGH-confidence candidates; new scans also trigger review. Set the minimum detection confidence to 90%, 95% (default), or 100%. The configured LLM must explicitly approve each candidate; there are no offline approvals. Runs consider up to 200 candidates in batches of 20. AI reasons, model, scan and rule version are recorded in the audit chain, and exports identify automated decisions. Each AI approval applies to its assessed scan; rescans require a fresh AI decision. Existing human decisions are preserved; AI approvals are excluded from human-confirmed precision. Undo latest AI batch returns untouched approvals to manual review. Disabling prevents subsequent approvals, including a pending model response. Workspace imports always start with automation off.
 
-You need **Python 3.11+**, **Node.js 20.9+**, and npm. Microsoft Edge is needed only for the documented browser tests and screenshot capture. Gemini is optional; scanning, manual review and the demonstration work without an API key.
+It never makes legal determinations. Every page and export says: *Technical evidence for human review. Not a legal determination.*
 
-From PowerShell:
+![Overview: posture indicator, KPI tiles with trends, drift alerts, class and gap charts](docs/screenshots/02-overview.png)
 
-```powershell
-git clone https://github.com/niveditapalanisamy/Privacy_Twin.git
-cd Privacy_Twin
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-lock.txt
-cd web
-npm ci
-cd ..
-powershell -ExecutionPolicy Bypass -File .\Start-PrivacyTwin.ps1 -Build
+## Run it locally (3 commands)
+
+Requires Python 3.11+ and Node 20+.
+
+```bash
+pip install -r requirements.txt                                # 1. backend dependencies
+uvicorn privacytwin.api:app --port 8000                        # 2. API on :8000 (leave running)
+cd web && npm ci && npm run dev                                # 3. app on http://127.0.0.1:3000
 ```
 
-Open **http://127.0.0.1:3000**. The launcher starts the frontend and local backend in the background. Logs are in `data/runtime/`.
+Optional AI: put a Groq API key in `data/groq-key.txt` (git-ignored) or set `GROQ_API_KEY` before step 2.
 
-```powershell
-# Start an already-built app
-.\Start-PrivacyTwin.ps1
+Open **http://127.0.0.1:3000** and click **Load sample company**. Within a few seconds you get *Acme Fintech India*, a synthetic company with three historical scans, finished reviews and open gaps. Or drop any CSV or SQLite file anywhere in the app.
 
-# Stop the app
-.\Stop-PrivacyTwin.ps1
+Development extras: `pip install -r requirements-dev.txt` (tests, Faker for the benchmark generator).
+
+## What a first-time user sees
+
+| | |
+| --- | --- |
+| ![Start screen with the 3D twin](docs/screenshots/01-landing.png) | ![Evidence card drawer](docs/screenshots/04-evidence-card.png) |
+| **Start screen**: the app opens straight into the job: drop a file or load the sample. | **Evidence card**: three signal bars, rule and version, rationale, masked examples, review, metadata, history, masking preview. |
+| ![Keyboard review queue](docs/screenshots/05-review.png) | ![Time Machine](docs/screenshots/07-time-machine.png) |
+| **Review queue**: risk-sorted, keyboard only (J/K/C/R/E/I/N/Z), undo toasts, bulk actions. | **Time Machine**: 3D snapshot deck, timeline, diff and drift alerts. |
+| ![Blast radius](docs/screenshots/08-simulator.png) | ![Lineage graph](docs/screenshots/09-lineage.png) |
+| **Blast radius**: records, classes, identifier combinations, linked tables. | **Lineage**: tables linked by shared identifiers or keyed fingerprints. |
+| ![Evaluation](docs/screenshots/10-evaluation.png) | ![Rule playground](docs/screenshots/11-rules.png) |
+| **Evaluation**: per-class metrics, confusion matrix, ablation, every error. | **Rule Playground**: live test, impact preview, semantic versions. |
+
+More: [metadata & gaps](docs/screenshots/06-metadata.png) · [evidence pack](docs/screenshots/12-evidence.png) · [audit log](docs/screenshots/13-audit.png) · [light theme](docs/screenshots/14-overview-light.png) · [375px mobile](docs/screenshots/15-mobile.png)
+
+## Architecture
+
+```mermaid
+flowchart LR
+  B["Static Next.js app<br/>(drawer · palette · keyboard)"] -->|workspace key + CSRF| A["FastAPI guard<br/>origin · rate limit · headers"]
+  S[("CSV / SQLite / Postgres")] -->|read-only, sampled| I["ingest.py"]
+  A --> I --> D["detect.py<br/>header · value · validator"]
+  D --> T["twin.py<br/>snapshots · reviews · metadata<br/>diff · simulations · posture"]
+  T --> DB[("SQLite<br/>aggregates only<br/>SHA-256 audit chain")]
+  T --> E["evidence.py<br/>ZIP + manifest + verify"]
+  I -. raw values discarded .-> X(("✕"))
 ```
 
-After changing application code, stop the app, then run `Start-PrivacyTwin.ps1 -Build`. See [build instructions](docs/BUILD.md) for development, other operating systems, tests and troubleshooting.
+Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Screen-by-screen data flow: [docs/UI_FLOW.md](docs/UI_FLOW.md). Exploration guide and full positive/negative test flows: [docs/TEST_GUIDE.md](docs/TEST_GUIDE.md). Automated flow test on a DRDO-style synthetic estate: `python tools/flow_test.py` → [docs/TEST_REPORT_DRDO.md](docs/TEST_REPORT_DRDO.md). The default rule set is documented in [`privacytwin/default_rules.yaml`](privacytwin/default_rules.yaml).
 
-## Use it in seven steps
+**How confidence works.** For each column and rule: *header* (keyword match on normalised names, including abbreviations like `mob`, `dob`, `cust_nm` and transliterations like `naam`, `pata`), *value* (share of sampled values matching the pattern) and *validator* (share passing a real check). `score = weight × (0.35 header + 0.30 value + 0.35 validator)`, then **HIGH ≥ 0.75 · MEDIUM ≥ 0.55 · LOW ≥ threshold**. Negative rules (order/invoice/sku/txn/timestamps, constant-prefix codes) cut false positives.
 
-| Screen        | What to do                                                          | What you get                                                     |
-| ------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Sources**   | Upload a CSV or SQLite file → **Register & scan**                   | Actual source, table and field profiles                          |
-| **Rules**     | Inspect or edit detectors and required metadata                     | Versioned rules and checklist                                    |
-| **Inventory** | Open a field and inspect evidence                                   | Candidate classes, detector counts and competing interpretations |
-| **Reviews**   | Save classification and metadata decisions separately               | Reviewer, rationale and original evidence dependencies           |
-| **Metadata**  | Enter purpose/retention → **Preview effect** → **Save declaration** | Declared context, provenance and visible gaps                    |
-| **Changes**   | Select the same registered source and upload a replacement          | Precise review reopening with before/after reasons               |
-| **Results**   | Inspect findings, evaluate and export                               | Inventory, gaps, history, reports and portable evidence          |
+## Evaluation results
 
-Try [walkthrough_v1.csv](docs/examples/walkthrough_v1.csv), then replace it with [walkthrough_v2.csv](docs/examples/walkthrough_v2.csv). They contain 20 synthetic records and four fields; V2 changes only `employee_id`. Follow the [user guide](docs/USER_MANUAL.md) for exact clicks and expected results.
+Synthetic benchmark in [`eval/`](eval/README.md): **253 labelled columns, 14 tables, 8 datasets**, including misleading headers, transliterated headers, look-alike IDs, Luhn-valid device IDs and 90–95% null columns. Reproduce with `python -m privacytwin.eval`.
 
-**Learn the states:** a _candidate_ is a scanner suggestion; _current_ means review dependencies are fresh; _clear/unresolved_ is the review outcome; _reopened_ means another review is needed. Complete metadata and a ready field describe technical workflow conditions, not legal compliance.
+| Class | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| IDENTITY | 1.000 | 0.970 | 0.985 | 33 |
+| CONTACT | 1.000 | 1.000 | 1.000 | 34 |
+| GOVERNMENT_ID | 1.000 | 0.909 | 0.952 | 22 |
+| FINANCIAL | 0.933 | 1.000 | 0.966 | 14 |
+| LOCATION | 0.970 | 1.000 | 0.985 | 32 |
+| **Macro avg** | 0.981 | 0.976 | **0.977** | |
+| Micro avg | 0.985 | 0.978 | 0.981 | |
 
-## What makes PrivacyTwin useful
+Accuracy including NOT_PERSONAL columns: 0.980.
 
-| Feature                      | Why it matters                                                                                                                                                          |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ReviewGuard**              | Reopens decisions whose dependencies changed and preserves unrelated reviews. Renames create new identities; restoring old values does not silently reapprove a review. |
-| **Evidence experiments**     | Remove header hints, value patterns, declared meaning or checksum validation and compare the finding without changing saved decisions.                                  |
-| **India-focused validation** | Includes Indian mobile patterns, PAN format, Aadhaar-shaped values with Verhoeff checks, and GSTIN checksum evidence. Matches remain candidates requiring context.      |
-| **Metadata preview**         | Shows missing purpose, retention duration/start trigger, owner and provenance before saving. Field declarations explicitly override table defaults.                     |
-| **Portable verification**    | Export a package with aggregate snapshots, original review dependencies, policies and a standalone score verifier.                                                      |
-| **Optional AI assistance**   | Generate attributed proposals with evidence/revision checks, selectable confidence thresholds and accept/reject/revoke controls.                                        |
+| Ablation | Macro F1 |
+|---|---:|
+| Header only | 0.840 |
+| Header + value | 0.914 |
+| **Header + value + validator** | **0.977** |
+| Value + validator (no header) | 0.836 |
 
-### Inspect the evidence
+The 5 remaining errors are listed with causes in [`eval/results.json`](eval/results.json) and on the Evaluation page: masked Aadhaar values, a DOB under a generic header, a health ID with no rule, and IFSC and city columns of a *branch* table (business objects, not people). **This is synthetic data written by the project team**, so treat it as evidence of how the rules behave, not a guarantee on your data. Use *Evaluation → Run on my data* to measure on your own columns, and *human-confirmed precision* to track reviewer agreement.
 
-![Actual evidence panel showing identifier match counts and candidate score contributions](docs/walkthrough/screenshots/07-evidence.png)
+## Security design
 
-The interface shows numerators, denominators and score contributions. Scores are weighted evidence, not probabilities. Correlated signals are capped within each group.
+- **Read-only sources**: SQLite `mode=ro` + `query_only`, with a write-probe self-test shown as a *Read-only verified* badge; PostgreSQL read-only transaction.
+- **No raw values persisted**: bounded in-memory samples (500 / 1,000 / 5,000 rows; head, random or stratified); only aggregates, masked examples (`ra****@gmail.com`, `XXXX-XXXX-1234`) and keyed MinHash fingerprints are stored. [`tests/test_no_raw_values.py`](tests/test_no_raw_values.py) fails if any sampled value appears in the database or any export.
+- **Isolation without login**: random browser workspace key; origin-bound CSRF tokens on writes; CORS locked to the frontend; rate limits; CSP and other security headers.
+- **Tamper evidence**: SHA-256 hash-chained audit log with *Verify integrity*; evidence-pack manifest whose hash is anchored in the chain.
+- **LLM boundary**: Groq receives metadata only (names, classes, signal scores, gaps); raw values and masked examples are never sent, enforced by a test. Without a key the app is fully offline.
 
-<details>
-<summary><strong>Screenshot: metadata preview and review impact</strong></summary>
+See [SECURITY.md](SECURITY.md).
 
-![Actual metadata preview: complete draft checklist and affected metadata review](docs/walkthrough/screenshots/13-complete-preview.png)
+## Tests
 
-Preview is read-only. Saving checks the draft and current revisions before committing the declaration.
-
-</details>
-
-<details>
-<summary><strong>Screenshot: executable ReviewGuard challenge</strong></summary>
-
-![Actual challenge: one classification review reopens while metadata and unrelated email reviews remain current](docs/walkthrough/screenshots/21-challenge-values.png)
-
-**Changes → Challenge ReviewGuard** runs eight scenarios using real scans and scripted reviews in separate disposable workspaces. The measured reference run matched **33/33 expected review states**, with **0 false and 0 missed reopenings**. These are scripted regression results.
-
-</details>
-
-## Optional real AI review
-
-Set `GEMINI_API_KEY` on the backend, or put the key in the ignored local file `data/gemini-key.txt`. Keep credentials out of browser variables and Git. Restart the backend after changing its environment.
-
-Open **Results / Scan report → Review automation**. Select a source, draft or automatic mode, scopes, maximum fields and minimum model confidence. The app offers **70%, 80%, 90%, 95% and 100%**; its general default is 95%. Each run saves the selected threshold. A clear proposal at exactly the threshold qualifies only if the other local checks pass.
-
-![Actual Gemini proposal automatically applied at exactly 70% model confidence](docs/ai-live/screenshots/06-classification.png)
-
-In the documented **real Gemini run at 70%**, three synthetic fields produced **6 proposals: 2 automatically applied and 4 unresolved/pending**. All 15 missing metadata items remained flagged. The guide also verifies acceptance, rejection, revocation and reopening after a value change. The first connection failure and original 95% run are preserved as reference evidence.
-
-- [Read the live-review record and screenshots](docs/ai-live/REVIEW.md)
-- [Open the live-review PDF](docs/ai-live/Actual-AI-Review-70-Percent.pdf)
-- [Inspect the actual provider result](docs/ai-live/downloads/provider-run-result.json)
-
-The configured integration uses `gemini-3.1-flash-lite`. Real runs contact Google and consume provider quota. They send aggregate evidence and metadata completeness; field names are opt-in. Raw source rows and declaration text stay local. Model confidence is not measured accuracy. Mixed evidence and missing business declarations remain unresolved.
-
-## Reports and demonstration
-
-| Audience                 | Start with                                                                                                                                                                                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Judges**               | [Judge guide](docs/JUDGES_GUIDE.md), [seven-slide pitch PDF](docs/submission/PrivacyTwin-Pitch.pdf), [five-minute script](docs/PITCH.md)                                                                                                          |
-| **New users**            | [User guide](docs/USER_MANUAL.md), [42-screenshot tour](docs/walkthrough/WALKTHROUGH.md), [printable walkthrough PDF](docs/walkthrough/PrivacyTwin-Full-Walkthrough.pdf)                                                                          |
-| **Technical reviewers**  | [Architecture](docs/ARCHITECTURE.md), [technical report draft PDF](docs/submission/PrivacyTwin-Technical-Report-Draft.pdf), [implementation audit](docs/IMPLEMENTATION_AUDIT.md)                                                                  |
-| **Results and evidence** | [Verification record](docs/submission/VERIFICATION.md), [class metrics](docs/submission/evaluation-results.json), [ReviewGuard results](docs/submission/challenge-results.json), [synthetic evidence ZIP](docs/submission/synthetic-evidence.zip) |
-| **Submission team**      | [Annotation and organizer checklist](docs/EVALUATION_PROTOCOL.md)                                                                                                                                                                                 |
-
-The standalone HTML guides are also committed under `docs/walkthrough/` and `docs/ai-live/`. GitHub displays HTML as source; download those files and open them locally for clickable, enlarged screenshots. Combined download archives can be regenerated with the documented packaging tools.
-
-From **Results**, download the final review report as HTML and use **Print / Save as PDF**. Inventory and gap reports are CSV; the passport and history are JSON. The evidence ZIP includes a standard-library verifier:
-
-```powershell
-python tools/verify_evidence.py docs/submission/synthetic-evidence.zip
+```bash
+python -m pytest -q --cov=privacytwin          # 124 tests; the LLM is disabled in tests
+python -m privacytwin.eval --min-macro-f1 0.9  # evaluation gate
+cd web && npx playwright test smoke            # needs the API on :8000 and the site on :3000
 ```
 
-This checks file consistency, references and aggregate score replay. Hashes do not establish authenticity or legal validity.
+The smoke test opens the app, loads the sample company (about 4–5 s locally), reviews with the keyboard only (confirm, reject with a note, undo with Z), verifies the audit chain, exports the evidence pack and verifies it, and checks the legal footer and the absence of horizontal scroll at 375px. To run it against the static build: `npm run build`, then `python -m http.server 3000 --directory web/out`.
 
-## Validation
+Lighthouse (landing page, served with compression, mobile emulation): Performance 90, Accessibility 100, Best Practices 100, SEO 100. Performance varies a few points between runs.
 
-| Check                              | Verified result                                             |
-| ---------------------------------- | ----------------------------------------------------------- |
-| Backend tests                      | **42 passed**                                               |
-| Browser workflows                  | **9 passed**; the standard suite skips the opt-in live test |
-| Production build                   | **Passed**, including TypeScript                            |
-| Separate real Gemini review at 70% | **Passed**, with 14 actual screenshots                      |
-| ReviewGuard challenge              | **33/33** expected states matched across 8 scenarios        |
+## Deploy
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-cd web
-npm run build
-npm run test:e2e
-```
+**Render (live demo):** one Docker web service (`render.yaml` + `Dockerfile.render`) builds the frontend as static files and serves them from the API on the same address; it redeploys automatically on every push to `main`. Set `GROQ_API_KEY` in the Render dashboard to enable the AI features. Cold starts show a *Waking up the server* screen with automatic retries; an optional keep-alive workflow pings `/api/health`.
 
-Browser tests use Microsoft Edge, isolated ports and separate databases. See [BUILD.md](docs/BUILD.md#tests-and-verification) for details and the explicit opt-in command for real-provider testing.
+The frontend can also be hosted separately (e.g. Vercel with `web/vercel.json` and `NEXT_PUBLIC_API_URL`). Full steps: [docs/DEPLOY.md](docs/DEPLOY.md).
 
-The bundled detection evaluation contains **12 benchmark fields and 7 separate stress fields**, authored as synthetic regression data. It reports per-class precision, recall and support, plus three baseline variants. **Independent human-labelled held-out validation remains required** before claiming general detection accuracy.
+## Known limitations
 
-## Scope and storage
+- **Accuracy is measured on synthetic data** we generated; real data will contain formats and contexts the rules have not seen.
+- **Context-blind**: a valid IFSC or city in a *branches* table is flagged like a customer's. Reviewers reject these, and the decision is recorded.
+- **Masked or tokenised identifiers** (e.g. `XXXX XXXX 1234`) are not detected as personal data.
+- **Header-dependent rules** (PIN code, bank account, DOB, age, gender) miss columns with generic names, by design, to avoid false positives on numbers and dates.
+- **No MySQL/SQL Server connectors** in this build (use a CSV export). The PostgreSQL connector needs the optional `psycopg` package and was not exercised in CI.
+- **Impact preview is approximate** when a rule's pattern or validator changes, because raw values are not kept; it is exact for keyword, weight, threshold and enable/disable changes.
+- **Evidence-pack hashes** show integrity after export, not authorship (no signing key).
+- **Single-process** rate limiter and SQLite; the free-tier demo resets on redeploy.
 
-- Five configured classes: **Identity, Contact, Location, Official ID and Demographic**.
-- Local, single-user prototype. Workspace state is `data/workspace.sqlite3`; controlled source copies are in `data/uploads/`. Both are ignored by Git.
-- Input limits: 10 MB per source, 20,000 rows per table, 100 columns, 25 SQLite tables and 250,000 cells per source. Admitted rows are scanned in full.
-- Persisted field evidence contains aggregates. Uploaded source copies, declarations, field names and reviewer text can still be sensitive.
-- The deterministic core works without an external provider. Optional Gemini review uses an external service.
-- Technical evidence for human review: no automatic lawful-basis decision, legal compliance finding or universal data-flow inference.
+## Legal disclaimer
 
-PS-019 also requires organizer-specific repository/report deliverables. The [submission checklist](docs/EVALUATION_PROTOCOL.md) records the remaining human annotation, taxonomy confirmation and official-template work.
+PrivacyTwin provides **technical evidence for human review. It is not a legal determination** and not legal advice. It never issues legal verdicts or legal labels; the product UI and exports avoid that vocabulary entirely (a test enforces it). See *Why we don't decide legality* at `/docs#legality` in the app. All demo and benchmark data is synthetic.
+
+---
+
+The v2 “ReviewGuard” version of this project is preserved at the git tag `v2-reviewguard`.

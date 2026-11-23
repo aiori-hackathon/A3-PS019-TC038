@@ -1,33 +1,28 @@
-# Single-container PrivacyTwin for Render's free plan (one web service, no private network).
-# The API listens only inside the container; Next.js is the only public port and proxies /api to it.
+# Single-container PrivacyTwin for Render's free plan (one public web service).
+# The Next.js frontend is built as static files and served by the FastAPI app on the same
+# address, so the browser calls /api on its own origin.
 
-# --- Build the web UI ---
+# --- Build the static web UI ---
 FROM node:22-slim AS web
-WORKDIR /app/web
-COPY web/package.json web/package-lock.json ./
-RUN npm ci --no-audit --no-fund
-COPY web/ ./
-# Same container, so the API is on the container's own loopback interface.
-ENV PRIVACYTWIN_API_URL=http://127.0.0.1:8000 NEXT_TELEMETRY_DISABLED=1
-RUN npm run build && npm prune --omit=dev
-
-# --- Runtime: Python API + Node web server ---
-FROM python:3.12-slim
-COPY --from=web /usr/local/bin/node /usr/local/bin/node
 WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 \
-    PRIVACYTWIN_API_URL=http://127.0.0.1:8000 PRIVACYTWIN_DB=/app/data/workspace.sqlite3 PORT=10000
+COPY eval/results.json eval/results.json
+COPY web/package.json web/package-lock.json web/
+RUN cd web && npm ci --no-audit --no-fund
+COPY web/ web/
+ENV NEXT_PUBLIC_API_URL=same-origin NEXT_TELEMETRY_DISABLED=1
+RUN cd web && npm run build
+
+# --- Runtime: Python API + static files ---
+FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    PRIVACYTWIN_STATIC_DIR=/app/web/out PRIVACYTWIN_DB=/app/data/privacytwin.sqlite3 PORT=10000
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-COPY main.py ./
-COPY core ./core
-COPY --from=web /app/web/package.json ./web/
-COPY --from=web /app/web/next.config.ts ./web/
-COPY --from=web /app/web/node_modules ./web/node_modules
-COPY --from=web /app/web/.next ./web/.next
-COPY --from=web /app/web/public ./web/public
-COPY deploy/start.sh ./start.sh
-RUN chmod +x start.sh && useradd --create-home app && mkdir -p data && chown -R app:app /app/data /app/web/.next
+COPY privacytwin ./privacytwin
+COPY eval ./eval
+COPY --from=web /app/web/out ./web/out
+RUN useradd --create-home app && mkdir -p data && chown -R app:app /app/data
 USER app
 EXPOSE 10000
-CMD ["./start.sh"]
+CMD ["sh", "-c", "exec uvicorn privacytwin.api:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers --forwarded-allow-ips='*'"]
